@@ -1,6 +1,6 @@
 {
   "version": "2.34.2",
-  "update": "默认源改为gh-proxy(实时无缓存)，国内可直连",
+  "update": "默认源改为gh-proxy，AI不响应，腐蚀掉血",
   "files": {
     "audio/CREDITS.md": "82864b499eec12c22ed4569fc0efe106aa8d3743",
     "audio/fx/duoshe_crack.mp3": "83410370ab720e6411c8271c832770fda2a57dfa",
