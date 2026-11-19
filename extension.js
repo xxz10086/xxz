@@ -1,4 +1,4 @@
-﻿import { lib, game, ui, get, ai, _status } from "noname";
+import { lib, game, ui, get, ai, _status } from "noname";
 import update from "./update.js";
 import { EXTENSION_VERSION } from "./version.js";
 
@@ -235,27 +235,9 @@ export default async function () {
 		help: {},
 		package: {
 			intro: [
-				"「脑花乔尼」合并扩展",
-				"版本 v2.34.2 · 2026-11-19",
-				"",
-				"【角色】",
-				"羂索（脑花）　群 3 体力",
-				"　〖死灭回游〗〖咒灵操术〗〖帐〗〖夺舍〗",
-				"乔尼·乔斯达　群 3 体力",
-				"　〖漆黑意志〗〖漫舞者〗〖牙〗",
-				"乔鲁诺·乔巴纳　群 4 体力",
-				"　〖黄金体验〗〖虫箭〗〖黄金体验镇魂曲〗〖决心〗",
-				"D&G　群 3 体力",
-				"　〖隐匿〗〖帮助〗〖马友友〗〖腐蚀〗",
-				"",
-				"【卡牌】",
-				"　漫舞者（坐骑）、虫箭（宝物）",
-				"",
-				"【说明】",
-				"　· 角色统一在一个包内，选将界面显示为「脑花乔尼」",
-				"　· 马友友为召唤物，不可直接选取",
-				"　· 特效 / 音效 / 觉醒BGM 可在扩展设置中开关",
-				"　· 版本号变更即代表扩展已更新成功",
+				"共 4 名角色：羂索、乔尼·乔斯达、乔鲁诺·乔巴纳、D&G",
+				"另有 2 张卡牌：漫舞者、虫箭",
+				`版本 v${EXT_VERSION}`,
 			].join("<br>"),
 			version: EXT_VERSION,
 		},
