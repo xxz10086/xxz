@@ -2032,7 +2032,7 @@ const translates = {
 
 const characters = {
 	[DG]: {
-		sex: "female",
+		sex: "male",
 		group: "qun",
 		hp: 3,
 		// ⚠️ 腐蚀（CORRUPT）不在 D&G 身上——它挂在马友友身上当「每轮计时器」，
