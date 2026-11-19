@@ -106,7 +106,7 @@ const skills = {
 		locked: true,
 		forced: true,
 		// ① roundStart：乔尼没装备就给他装一张（动态创建，不占牌堆）
-		// ② loseAfter：这张牌一旦离开乔尼的装备区就销毁，不留在场上被他人拿走
+		// ② loseAfter：这张牌一旦离开乔尼的装备区就彻底销毁
 		trigger: {
 			global: ["roundStart", "loseAfter"],
 		},
@@ -131,18 +131,44 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			if (trigger && trigger.name === "loseAfter") {
-				// 销毁：把这张牌从任何区域彻底移除，避免流到牌堆或别人手里
 				const cards = (trigger.cards || []).filter((c) => c && c.name === "qnj_manwuzhe");
 				if (!cards.length) return;
+				// 用引擎自带的销毁流程（card.js:115 selfDestroy）：
+				//   · 设置 _selfDestroyed 标记，后续 lose 流程看到它会跳过、不再进弃牌堆
+				//   · 内部调用 delete() 移除 DOM
+				//   · 触发 info.onDestroy 钩子、写"被销毁了"日志
+				// 比裸调 delete() 彻底 —— delete() 只摘 DOM，牌数据仍可能留在弃牌堆。
 				for (const c of cards) {
 					try {
-						c.delete();
-					} catch (e) {}
+						if (typeof c.selfDestroy === "function") {
+							c.selfDestroy(trigger);
+						} else {
+							c.delete();
+						}
+					} catch (e) {
+						try {
+							c.delete();
+						} catch (e2) {}
+					}
 				}
+				// 兜底：万一某张牌还是落进了弃牌堆，把它从那里摘走
+				try {
+					for (const c of cards) {
+						if (c.parentNode) c.parentNode.removeChild(c);
+					}
+				} catch (e) {}
 				game.log("#g「漫舞者」", "离开了乔尼，已销毁");
 				return;
 			}
 			const card = game.createCard("qnj_manwuzhe", "spade", 13);
+			// 标记"离开装备区即销毁"。
+			// ⚠️ 必须写成函数而不是 true：
+			//   引擎在【装备时】也会调 willBeDestroyed("equip")（content.js:961），
+			//   写 true 会让这张牌刚装上就被销毁。
+			//   这里只在目标是「非装备区」时返回 true，装备流程照常通过。
+			try {
+				card.destroyed = (c, targetPosition) => targetPosition !== "equip";
+			} catch (e) {}
 			await player.equip(card);
 			FX("horse", player);
 			game.log(player, "装备了", "#g「漫舞者」");
