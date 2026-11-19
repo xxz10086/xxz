@@ -2044,7 +2044,7 @@ const characters = {
 		//   · dvg_skill_marklimit 是给「被帮助者」用的内部限次规则，
 		//     不挂在 D&G 身上（他也不需要限次），这里去掉。
 		skills: [HIDDEN, "dvg_skill_return", HELP, MAYOUYOU, "dvg_skill_takedown"],
-		// 立绘未提供时用默认
+		img: "extension/脑花乔尼/image/dvg_dg.jpg",
 	},
 	[MAYY]: {
 		sex: "male",
@@ -2053,6 +2053,7 @@ const characters = {
 		// CORRUPT 挂这里：马友友从登场到结束都在场，作为「腐蚀计时器」最可靠
 		skills: ["dvg_skill_mayouyou_core", CORRUPT],
 		isUnseen: true, // 不可选，只能被召唤
+		img: "extension/脑花乔尼/image/dvg_mayouyou.jpg",
 	},
 };
 
