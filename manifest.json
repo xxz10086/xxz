@@ -1,6 +1,6 @@
 {
-  "version": "2.34.3",
-  "update": "精简扩展描述",
+  "version": "2.34.4",
+  "update": "漫舞者不再入牌堆，离开乔尼即销毁",
   "files": {
     "audio/CREDITS.md": "82864b499eec12c22ed4569fc0efe106aa8d3743",
     "audio/fx/duoshe_crack.mp3": "83410370ab720e6411c8271c832770fda2a57dfa",
@@ -50,16 +50,16 @@
     "image/jojo_giorno.jpg": "4855b6bc4aaf5329d84ce3a292f74314f0ecc204",
     "image/jojo_giorno_requiem.jpg": "de5aab20230cfdbcb9e881add6d2575efeca1830",
     "image/qnj_jonny.jpg": "366983409171a73a2b2629bd759c2e9b50c40362",
-    "info.json": "83ee2fd6c939347c4639cbd4293c39add4b36542",
+    "info.json": "e38da6ddd5a844e72a7102a7a1a4b5ef4645a8ad",
     "tools/抓取音效.mjs": "75fcd8a904d1c3bfb77e356dde29123dcd3762c0",
     "tools/整理音效.mjs": "a8228e5eef245c8c491a1d8f8e4467ab390a0edb",
     "tools/生成乔鲁诺预览.mjs": "27912d4fb2ffb2e2a14544f4f78fe12f060e7d51",
     "tools/预览服务器.mjs": "016dafcb47a8586129f25e70d0c49b46df5e0976",
     "update.js": "27dd9b9bafe538953812960c8ad91466df18fded",
-    "version.js": "713353f084a50bf091be81c91e1ffd93920084fe",
+    "version.js": "67b9e74cdf8a5049f2458b3581a52d8ade5db2a6",
     "_给AI的交接说明.md": "c9545128f8528db035ea36bf8f9dd62a91ff8ccd",
     "乔尼坐骑.js": "524d6d1cda454c48ccc8e6cdc7eebb4b05af202c",
-    "乔尼技能.js": "e75cd6d01f984e9078c4c325890d1314fe740232",
+    "乔尼技能.js": "ee7923aa1bc0849afe68b0d39a4bdc48697559b4",
     "乔尼数据.js": "24110bc3801069bb03780dfb12551a74b6c1c4d9",
     "乔尼特效.js": "5a5919f4862b6e770d74abdafc170c915a77587d",
     "乔尼说明.md": "90f064550ef39c352c911525863085f7a39714af",
@@ -70,7 +70,7 @@
     "乔鲁诺说明.md": "fff18082a30784fa3eb685e787603e6f235eac6d",
     "脑花场地.js": "fa84a4b05cc1a0c6f7ac6914686c1e2d12897e92",
     "脑花技能.js": "ded54d9ecaa3704bc4a227154fd025c48d4d3dd8",
-    "脑花数据.js": "f4cd5d762e9f8cf42c1828bb9bd107027b4c6cbc",
+    "脑花数据.js": "ff8ab6458ebdfb052a15d1d478358ecc57a71f9a",
     "脑花特效.js": "a855252d98e056e26433ff094245aa624894d4cb",
     "脑花说明.md": "702f46f5a649d78123923f9b3a778df7947cf527"
   }

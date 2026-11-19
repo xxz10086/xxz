@@ -1,4 +1,4 @@
-﻿import { lib, game, ui, get, ai, _status } from "noname";
+import { lib, game, ui, get, ai, _status } from "noname";
 import skills from "./脑花技能.js";
 import { characters as qnjCharacters, translates as qnjTranslates, qnjSkills } from "./乔尼数据.js";
 import { manwuzheCard as qnjManwuzheCard, manwuzheTranslate as qnjManwuzheTranslate } from "./乔尼坐骑.js";
@@ -163,7 +163,12 @@ game.import("card", function () {
 			// 全部技能说明一并塞进卡牌包，属冗余）。
 			...jojoCardTranslates,
 		},
-		list: [["spade", 13, "qnj_manwuzhe"]],
+		// ⚠️ 不写 list：不在牌堆留任何条目。
+		//   「漫舞者」是乔尼的专属坐骑，由〖漫舞者〗技能用 game.createCard 动态生成，
+		//   不需要出现在牌堆里（抽不到、洗牌也没有）。
+		//   旧写法 list: [["spade", 13, "qnj_manwuzhe"]] 会把它塞进牌堆，
+		//   导致其他角色也能摸到甚至抢走，与"专属"定位冲突。
+		list: [],
 	};
 	if (lib.config?.all?.cards?.add) {
 		lib.config.all.cards.add("naohua");

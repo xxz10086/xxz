@@ -105,13 +105,43 @@ const skills = {
 	qnj_manwuzhe_skill: {
 		locked: true,
 		forced: true,
+		// ① roundStart：乔尼没装备就给他装一张（动态创建，不占牌堆）
+		// ② loseAfter：这张牌一旦离开乔尼的装备区就销毁，不留在场上被他人拿走
 		trigger: {
-			global: "roundStart",
+			global: ["roundStart", "loseAfter"],
 		},
 		filter(event, player) {
-			return player.isAlive() && !player.getCards("e", card => card.name === "qnj_manwuzhe").length;
+			if (event.name === "loseAfter") {
+				// 只关心装备区失去的牌
+				const cards = event.cards || [];
+				if (!cards.some((c) => c && c.name === "qnj_manwuzhe")) return false;
+				// 失去这张牌的人必须是乔尼本人。
+				// event.player 是"谁失去了牌"，不是当前技能持有者。
+				// 身份判定用 name1/name/name2 多路匹配（角色可能因变化技改过 name）。
+				const owner = event.player;
+				if (!owner) return false;
+				const isJonny = owner.name1 === "qnj_jonny" || owner.name === "qnj_jonny" || owner.name2 === "qnj_jonny";
+				if (!isJonny) return false;
+				// 确认确实离开了装备区（而不是装备区内部调整）
+				const stillEquip = owner.getCards("e", (c) => c && c.name === "qnj_manwuzhe");
+				return stillEquip.length === 0;
+			}
+			// roundStart 分支：乔尼活着且没装备
+			return player.isAlive() && !player.getCards("e", (card) => card.name === "qnj_manwuzhe").length;
 		},
 		async content(event, trigger, player) {
+			if (trigger && trigger.name === "loseAfter") {
+				// 销毁：把这张牌从任何区域彻底移除，避免流到牌堆或别人手里
+				const cards = (trigger.cards || []).filter((c) => c && c.name === "qnj_manwuzhe");
+				if (!cards.length) return;
+				for (const c of cards) {
+					try {
+						c.delete();
+					} catch (e) {}
+				}
+				game.log("#g「漫舞者」", "离开了乔尼，已销毁");
+				return;
+			}
 			const card = game.createCard("qnj_manwuzhe", "spade", 13);
 			await player.equip(card);
 			FX("horse", player);
