@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "noname";
+﻿import { lib, game, ui, get, ai, _status } from "noname";
 import update from "./update.js";
 import { EXTENSION_VERSION } from "./version.js";
 
@@ -188,14 +188,18 @@ export default async function () {
 				},
 			},
 			update_source: {
-				name: `<font color="#9c27b0">更新镜像源`,
+				name: `<font color="#9c27b0">更新源`,
 				init: "0",
-				intro: "访问 GitHub 缓慢或失败时，可切换加速镜像。",
+				intro:
+					"默认用 <b>jsDelivr 国内节点</b>，国内网络可直连。<br>" +
+					"若检查更新失败，可切换其他源试试。<br>" +
+					"<small>· jsDelivr 会缓存约 12 小时，刚发布的新版本可能延迟生效<br>" +
+					"· 开了海外代理的话，「GitHub 直连」通常最快</small>",
 				item: {
-					0: "直连",
-					1: "gh-proxy.com",
-					2: "hk.gh-proxy.com",
-					3: "tvv.tw",
+					0: "jsDelivr 国内（推荐）",
+					1: "jsDelivr 官方",
+					2: "gh-proxy 加速",
+					3: "GitHub 直连",
 				},
 			},
 			update_method: {
@@ -232,7 +236,7 @@ export default async function () {
 		package: {
 			intro: [
 				"「脑花乔尼」合并扩展",
-				"版本 v2.34.0 · 2026-11-12",
+				"版本 v2.34.1 · 2026-11-19",
 				"",
 				"【角色】",
 				"羂索（脑花）　群 3 体力",

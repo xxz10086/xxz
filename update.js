@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // 在线更新模块
 // ----------------------------------------------------------------------------
 // 结构参考《朔夜》0.1.42 的 update.js（比《一中杀》那版更完善），要点：
@@ -15,16 +15,37 @@ export const EXTENSION_VERSION_FALLBACK = "0.0.0";
 // ============ 线上更新配置 ============
 const EXTNAME = "脑花乔尼";
 
-// ── 仓库根目录（raw 地址，可被镜像前缀拼接）──
-// ⚠️ 改成你自己的仓库地址。留空则「检查更新」会提示未配置。
-// 示例：
-//   "https://raw.githubusercontent.com/用户名/仓库名/refs/heads/main"
-//   "https://gitee.com/用户名/仓库名/raw/master"
-const REPO = "https://raw.githubusercontent.com/xxz10086/xxz/refs/heads/main";
+// GitHub 仓库坐标
+const GH_USER = "xxz10086";
+const GH_REPO = "xxz";
+const GH_BRANCH = "main";
 
-// ── 镜像源（顺序与扩展设置里的 update_source 选项一致）──
-// 第一个空串是「直连」，其余是 GitHub 加速代理
-const MIRRORS = ["", "https://gh-proxy.com/", "https://hk.gh-proxy.com/", "https://tvv.tw/"];
+// ── 更新源列表（按顺序，索引对应扩展设置里的 update_source 选项）──
+// 【默认用国内可直连的 jsDelivr】，GitHub 直连放最后（国内多半连不上）。
+//
+// 为什么默认不用 raw.githubusercontent.com：
+//   国内绝大多数网络无法直接访问 raw.githubusercontent.com，
+//   会直接超时 → 玩家点「检查更新」永远失败。
+//   jsDelivr 有国内节点，能直连，是最省心的默认选择。
+//
+// 各源说明：
+//   ① jsDelivr（quantil 节点）——国内可直连，速度最快，实测约 1 秒
+//   ② jsDelivr（cdn 节点）    ——官方主节点，国内一般也能通
+//   ③ gh-proxy.com            ——GitHub 加速代理，国内可用
+//   ④ GitHub raw 直连         ——海外或开了代理时最快
+const SOURCES = [
+	// ① jsDelivr quantil（国内首选）
+	{ name: "jsDelivr 国内", base: `https://quantil.jsdelivr.net/gh/${GH_USER}/${GH_REPO}@${GH_BRANCH}` },
+	// ② jsDelivr 官方
+	{ name: "jsDelivr 官方", base: `https://cdn.jsdelivr.net/gh/${GH_USER}/${GH_REPO}@${GH_BRANCH}` },
+	// ③ gh-proxy 加速
+	{ name: "gh-proxy", base: `https://gh-proxy.com/https://raw.githubusercontent.com/${GH_USER}/${GH_REPO}/refs/heads/${GH_BRANCH}` },
+	// ④ GitHub 直连（海外/代理）
+	{ name: "GitHub 直连", base: `https://raw.githubusercontent.com/${GH_USER}/${GH_REPO}/refs/heads/${GH_BRANCH}` },
+];
+
+// 兼容旧变量名（代码里还在用 REPO / MIRRORS 的地方）
+const REPO = SOURCES[0].base;
 
 // ── 只在本地存在的文件：不发布、也不被清理逻辑误删 ──
 const LOCAL_ONLY = [
@@ -70,24 +91,27 @@ export async function performUpdate(isManual, localVersion) {
 		return;
 	}
 
-	// ── 获取清单：首选源立即发，其余镜像 400ms 后并发抢跑 ──
-	const primary = MIRRORS[Number(lib.config[`extension_${EXTNAME}_update_source`]) || 0] ?? "";
-	const attempts = [primary, ...MIRRORS.filter((x) => x !== primary)].map(
-		(u, i) =>
+	// ── 获取清单：首选源立即发，其余源 400ms 后并发抢跑 ──
+	// 说明：jsDelivr 会缓存文件（约 12 小时），刚推送的新文件可能还没生效，
+	//      所以这里并发跑多个源，谁先返回有效清单就用谁。
+	const preferredIdx = Number(lib.config[`extension_${EXTNAME}_update_source`]) || 0;
+	const ordered = [SOURCES[preferredIdx] ?? SOURCES[0], ...SOURCES.filter((s, i) => i !== preferredIdx)];
+	const attempts = ordered.map(
+		(src, i) =>
 			new Promise((resolve, reject) => {
 				setTimeout(async () => {
 					try {
 						const opt = { cache: "no-store" };
 						if (typeof AbortSignal !== "undefined" && AbortSignal.timeout) {
-							opt.signal = AbortSignal.timeout(8000);
+							opt.signal = AbortSignal.timeout(10000);
 						}
-						const r = await fetch(`${u}${REPO}/manifest.json`, opt);
-						if (!r.ok) throw new Error(`HTTP ${r.status}`);
+						const r = await fetch(`${src.base}/manifest.json`, opt);
+						if (!r.ok) throw new Error(`${src.name} HTTP ${r.status}`);
 						const manifest = await r.json();
 						if (typeof manifest?.version !== "string" || !manifest.files || typeof manifest.files !== "object") {
-							throw new Error("清单格式不正确");
+							throw new Error(`${src.name} 清单格式不正确`);
 						}
-						resolve({ source: u, manifest });
+						resolve({ source: src, manifest });
 					} catch (e) {
 						reject(e);
 					}
@@ -103,12 +127,21 @@ export async function performUpdate(isManual, localVersion) {
 	}
 	if (!picked) {
 		sessionStorage.nh_check = true;
-		if (isManual) alert("清单文件获取失败，请检查网络连接或更换更新源");
+		if (isManual) {
+			alert(
+				"清单文件获取失败。\n\n" +
+					"可能原因：\n" +
+					"· 网络不通（请确认能正常上网）\n" +
+					"· jsDelivr 缓存了旧文件（等几分钟再试）\n" +
+					"· 仓库地址或分支名有误\n\n" +
+					"可在扩展设置里切换「更新源」后重试。"
+			);
+		}
 		return;
 	}
-	const p = picked.source;
+	const p = picked.source.base;
 	const m = picked.manifest;
-	console.log(`[${EXTNAME}] 使用${p || "直连"}源获取清单成功，仓库版本 v${m.version}`);
+	console.log(`[${EXTNAME}] 使用「${picked.source.name}」获取清单成功，仓库版本 v${m.version}`);
 
 	// ── 版本号比较：本地更高则跳过（防止开发版被旧清单覆盖）──
 	if (compareVersion(localVersion, m.version) > 0) {
@@ -203,7 +236,9 @@ export async function performUpdate(isManual, localVersion) {
 			prog.setProgress(i + 1);
 			prog.setFile(f);
 			// ⚠️ encodeURI：本扩展有大量中文文件名，不编码会 404
-			const fileUrl = encodeURI(`${p}${REPO}/${f}`);
+			// p 已经是完整的源根地址（如 https://quantil.jsdelivr.net/gh/user/repo@main），
+			// 直接拼相对路径即可，不要再加 REPO。
+			const fileUrl = encodeURI(`${p}/${f}`);
 			const r = await downloadFileWithRetry(fileUrl);
 			const data = await r.arrayBuffer();
 			const fullPath = `extension/${EXTNAME}/${f}`;
