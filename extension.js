@@ -191,14 +191,14 @@ export default async function () {
 				name: `<font color="#9c27b0">更新源`,
 				init: "0",
 				intro:
-					"默认用 <b>jsDelivr 国内节点</b>，国内网络可直连。<br>" +
+					"默认用 <b>gh-proxy 加速</b>，国内可直连，且实时生效（新版本推送后立刻能取到）。<br>" +
 					"若检查更新失败，可切换其他源试试。<br>" +
-					"<small>· jsDelivr 会缓存约 12 小时，刚发布的新版本可能延迟生效<br>" +
+					"<small>· jsDelivr 有约 12 小时缓存，新版本可能延迟生效<br>" +
 					"· 开了海外代理的话，「GitHub 直连」通常最快</small>",
 				item: {
-					0: "jsDelivr 国内（推荐）",
-					1: "jsDelivr 官方",
-					2: "gh-proxy 加速",
+					0: "gh-proxy 加速（推荐）",
+					1: "ghproxy.net",
+					2: "jsDelivr 国内",
 					3: "GitHub 直连",
 				},
 			},
@@ -236,7 +236,7 @@ export default async function () {
 		package: {
 			intro: [
 				"「脑花乔尼」合并扩展",
-				"版本 v2.34.1 · 2026-11-19",
+				"版本 v2.34.2 · 2026-11-19",
 				"",
 				"【角色】",
 				"羂索（脑花）　群 3 体力",

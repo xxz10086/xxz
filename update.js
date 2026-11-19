@@ -21,26 +21,24 @@ const GH_REPO = "xxz";
 const GH_BRANCH = "main";
 
 // ── 更新源列表（按顺序，索引对应扩展设置里的 update_source 选项）──
-// 【默认用国内可直连的 jsDelivr】，GitHub 直连放最后（国内多半连不上）。
 //
-// 为什么默认不用 raw.githubusercontent.com：
-//   国内绝大多数网络无法直接访问 raw.githubusercontent.com，
-//   会直接超时 → 玩家点「检查更新」永远失败。
-//   jsDelivr 有国内节点，能直连，是最省心的默认选择。
+// 【默认用 gh-proxy 加速代理】——它是「实时转发」，不缓存，
+// 一推送就能取到新版本，且国内能直连（实测约 1 秒）。
 //
-// 各源说明：
-//   ① jsDelivr（quantil 节点）——国内可直连，速度最快，实测约 1 秒
-//   ② jsDelivr（cdn 节点）    ——官方主节点，国内一般也能通
-//   ③ gh-proxy.com            ——GitHub 加速代理，国内可用
-//   ④ GitHub raw 直连         ——海外或开了代理时最快
+// 为什么不用 jsDelivr 当默认：
+//   jsDelivr 会按分支名缓存约 12 小时。刚发布的新版本，
+//   用 @main 访问会拿到旧清单 → 玩家点更新提示「已是最新」，
+//   必须等十几小时才生效。这个问题在实测中已经踩到。
+//   （jsDelivr 按 commit hash 访问能绕过缓存，但代码事先不知道最新 hash。）
+//   所以把它放到第 3 位当备用。
 const SOURCES = [
-	// ① jsDelivr quantil（国内首选）
+	// ① gh-proxy（实时、国内可直连）—— 默认
+	{ name: "gh-proxy 加速", base: `https://gh-proxy.com/https://raw.githubusercontent.com/${GH_USER}/${GH_REPO}/refs/heads/${GH_BRANCH}` },
+	// ② ghproxy.net（另一家加速，备用）
+	{ name: "ghproxy.net", base: `https://ghproxy.net/https://raw.githubusercontent.com/${GH_USER}/${GH_REPO}/refs/heads/${GH_BRANCH}` },
+	// ③ jsDelivr 国内节点（有缓存，最后兜底）
 	{ name: "jsDelivr 国内", base: `https://quantil.jsdelivr.net/gh/${GH_USER}/${GH_REPO}@${GH_BRANCH}` },
-	// ② jsDelivr 官方
-	{ name: "jsDelivr 官方", base: `https://cdn.jsdelivr.net/gh/${GH_USER}/${GH_REPO}@${GH_BRANCH}` },
-	// ③ gh-proxy 加速
-	{ name: "gh-proxy", base: `https://gh-proxy.com/https://raw.githubusercontent.com/${GH_USER}/${GH_REPO}/refs/heads/${GH_BRANCH}` },
-	// ④ GitHub 直连（海外/代理）
+	// ④ GitHub 直连（海外 / 开了代理时最快）
 	{ name: "GitHub 直连", base: `https://raw.githubusercontent.com/${GH_USER}/${GH_REPO}/refs/heads/${GH_BRANCH}` },
 ];
 
