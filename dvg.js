@@ -1,5 +1,59 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
+import "./D&G特效.js";
+
+/* ============================================================================
+ * 表现层驱动：只负责"让每个客户端各播一遍"，任何异常都吞掉，绝不参与结算。
+ * ========================================================================== */
+function FXOn() {
+	try {
+		return !!(lib.dvgFx && lib.dvgFx.on);
+	} catch (e) {
+		return false;
+	}
+}
+
+function FX(name, ...args) {
+	try {
+		if (!FXOn()) return;
+		const runner = function () {
+			try {
+				const rest = Array.prototype.slice.call(arguments, 1);
+				if (lib.dvgFx) lib.dvgFx.play(arguments[0], rest);
+			} catch (e) {}
+		};
+		if (typeof game.broadcastAll === "function") game.broadcastAll(runner, name, ...args);
+		else runner(name, ...args);
+	} catch (e) {}
+}
+
+function FXWait(ms, skippable) {
+	if (!FXOn()) return Promise.resolve();
+	// 画质档位 1/2 会缩短演出等待，低端机不必干等
+	try {
+		const _f = lib.dvgFx;
+		const _ts = _f && _f.timeScale;
+		if (typeof _ts === "function") ms = Math.max(120, Math.round(ms * _ts()));
+	} catch (e) {}
+	return new Promise(resolve => {
+		let done = false;
+		const finish = () => {
+			if (done) return;
+			done = true;
+			try {
+				document.removeEventListener("pointerdown", finish, true);
+			} catch (e) {}
+			resolve();
+		};
+		setTimeout(finish, ms);
+		if (skippable) {
+			try {
+				document.addEventListener("pointerdown", finish, true);
+			} catch (e) {}
+		}
+	});
+}
+
 /* ============================================================================
  * D&G（JOJO 第七部「Steel Ball Run」的替身使者）
  * 势力：群 / 3 体力
@@ -122,6 +176,7 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			player.storage.dvg_hidden = true;
+			FX("hiddenStart", player);
 			// 记录「应该在哪个轮次归来」。
 			// ⚠️ 这里必须 +1，不能直接记当前轮次：
 			//   gameDrawEnd 时 roundNumber 还是 0，而第一个角色一开局 roundNumber 就变 1
@@ -176,6 +231,8 @@ const skills = {
 				} catch (e) {}
 			}, player);
 			game.log(player, "进入", "#g「隐匿」", "状态，武将牌已暗置");
+			FX("hiddenOut", player);
+			await FXWait(760, true);
 
 			// 给一点时间让暗置动画/重绘完成，再进行第二步（delay 不存在时跳过，保证流程不中断）
 			try {
@@ -658,6 +715,7 @@ const skills = {
 				if (typeof ui.updatehl === "function") ui.updatehl();
 			} catch (e) {}
 
+			FX("returnBack", player);
 			game.log(player, "从", "#g「隐匿」", "中重新登场（座次已恢复）");
 		},
 	},
@@ -701,6 +759,8 @@ const skills = {
 			// 依次询问每名其他角色（活的、在场的）
 			const targets = (game.players || []).filter(p => p && p !== player && p.isAlive() && p.isIn());
 			for (const target of targets) {
+				FX("helpAsk", player, target);
+				await FXWait(320, true);
 				const result = await target
 					.chooseBool(`D&G 询问：是否接受〖帮助〗？`, `接受后将获得「被帮助」标记，并可与「${get.poptip(MAYY)}」互动。`)
 					.set("ai", () => {
@@ -731,6 +791,9 @@ const skills = {
 						} catch (e) {}
 					}, target, HELPED);
 					game.log(target, "接受了", player, "的", "#g「帮助」");
+					FX("helped", target);
+				} else {
+					FX("declined", target);
 				}
 			}
 			// 询问结束 → 召唤马友友
@@ -749,6 +812,8 @@ const skills = {
 		// 召唤马友友：作为独立武将登场于 D&G 的上家位置
 		async summon(player) {
 			if (findMayouyou()) return; // 已存在
+			FX("summon", player);
+			await FXWait(1250, true);
 			try {
 				// 「上家」= 玩家座位顺序里的前一位。引擎里 previous 就是上家；
 				// addPlayerOL(target, char, char2, isNext)：isNext=false 表示插在 target 之前，
@@ -830,6 +895,7 @@ const skills = {
 			const my = findMayouyou();
 			if (!my) return;
 			try {
+				FX("mayouyouGone", my);
 				game.log("#g「马友友」", "随着 D&G 一同消失了");
 				// 先强制致死（它本身有「不会死亡」的技能，所以要先摘掉）
 				// ⚠️ 联机适配：removeSkill 要广播
@@ -899,6 +965,7 @@ const skills = {
 		trigger: { global: "phaseBegin" },
 		async content(event, trigger, player) {
 			if (!player.storage.dvg_isMayouyou) return;
+			FX("heal", player);
 			if (player.hp < player.maxHp) {
 				await player.recover(player.maxHp - player.hp);
 			}
@@ -924,6 +991,7 @@ const skills = {
 		trigger: { player: "damageEnd" },
 		async content(event, trigger, player) {
 			if (!player.storage.dvg_isMayouyou) return;
+			FX("damageDraw", player, 2);
 			await player.draw(2);
 			// 摸到的牌搬进扩展区（共享正本）
 			try {
@@ -944,6 +1012,7 @@ const skills = {
 			trigger.cancel();
 			// 阶段名在 trigger.name 上（engine 把 triggername 挂在 trigger 事件，而不是技能 event）
 			const isUse = trigger.name === "phaseUseBegin";
+			FX("skipPhase", player, isUse);
 			game.log(player, "跳过了", isUse ? "出牌阶段" : "弃牌阶段", "，改为摸牌");
 			await player.draw(2);
 			// 摸到的牌搬进扩展区（共享正本）
@@ -962,6 +1031,7 @@ const skills = {
 		trigger: { player: "dying" },
 		async content(event, trigger, player) {
 			if (!player.storage.dvg_isMayouyou) return;
+			FX("immortal", player);
 			// 取消濒死，体力拉到 1 以上以便继续存活（但显示停在 0 由后续回血处理）
 			trigger.cancel?.();
 			event.cancel?.();
@@ -1130,6 +1200,7 @@ const skills = {
 			try {
 				trigger.finish?.();
 			} catch (e) {}
+			FX("noreply", player);
 			game.log(player, "放弃了响应（闪/杀/无懈）");
 		},
 	},
@@ -1155,6 +1226,8 @@ const skills = {
 			return !!findMayouyou();
 		},
 		async content(event, trigger, player) {
+			FX("takedown", player);
+			await FXWait(620, true);
 			await lib.skill[MAYOUYOU].killMayouyou(player);
 		},
 	},
@@ -1198,6 +1271,7 @@ const skills = {
 				const num = who.countMark(CORRUPT_MARK) || 0;
 				const times = Math.floor(num / 5);
 				if (times <= 0) return;
+				FX("corruptDamage", who, times);
 				game.log(who, "因", "#g「腐蚀」", "流失", get.cnNumber(times), "点体力");
 				try {
 					await who.loseHp(times);
@@ -1229,9 +1303,11 @@ const skills = {
 				// D&G 自己虽然也带「被帮助」标记，但按设计不吃腐蚀
 				if (isDgPlayer(p)) continue;
 				addCorrupt(p);
+				FX("corruptGain", p, 1);
 				count++;
 			}
 			if (count > 0) {
+				FX("corruptWave", count);
 				game.log("#g「马友友」", "的「腐蚀」发作了：", count, "名被帮助者各 +1 枚");
 			}
 		},
@@ -1426,6 +1502,7 @@ const skills = {
 			// 给玩家 1 枚腐蚀（D&G 自己不吃）
 			if (!isDgPlayer(player)) addCorrupt(player);
 
+			FX("useCard", player, card);
 			game.log(player, "取用了", "#g「马友友」", "的", card);
 
 			// 关键：直接写响应结果，让引擎认这次响应
@@ -1925,6 +2002,7 @@ const skills = {
 			if (!result.bool || !result.cards?.length) return;
 			await player.lose(result.cards, ui.special);
 			await my.gain(result.cards, "gain2");
+			FX("give", player, my, 1);
 			game.log(player, "将一张手牌交给了", "#g「马友友」");
 		},
 	},
@@ -1947,6 +2025,7 @@ const skills = {
 			const cards = (trigger.cards || []).filter(c => get.position(c, true) === "d");
 			if (!cards.length) return;
 			await my.gain(cards, "gain2");
+			FX("give", player, my, cards.length);
 			game.log(player, "弃置的牌置入了", "#g「马友友」", "的手牌区");
 		},
 	},

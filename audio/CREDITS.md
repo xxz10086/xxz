@@ -37,3 +37,24 @@
 | `qnj_horse.mp3` | gallop.mp3 | maugusto_sfx | [468031](https://freesound.org/people/maugusto_sfx/sounds/468031/) |
 | `qnj_infinity.mp3` | refrigerator_drone_loop.mp3 | Syna-Max | [58808](https://freesound.org/people/Syna-Max/sounds/58808/) |
 | `qnj_shatter.mp3` | Crash pacts Shatter 01 | PNMCarrieRailfan | [682384](https://freesound.org/people/PNMCarrieRailfan/sounds/682384/) |
+
+## D&G（Steel Ball Run）
+
+| 文件 | 音效名 | 作者 | 链接 |
+|---|---|---|---|
+| `dvg_hide.mp3` | Paper_Flip_01 | Rookster | [615337](https://freesound.org/people/Rookster/sounds/615337/) |
+| `dvg_vanish.mp3` | 11762 Quick air pop and vanish.wav | Robinhood76 | [702515](https://freesound.org/people/Robinhood76/sounds/702515/) |
+| `dvg_return.mp3` | Black Portal - Dark Dimension Rift | LilMati | [657653](https://freesound.org/people/LilMati/sounds/657653/) |
+| `dvg_hit.mp3` | CartImpact3.wav | FFeller | [532872](https://freesound.org/people/FFeller/sounds/532872/) |
+| `dvg_ask.mp3` | Notification Squeak | FoolBoyMedia | [259174](https://freesound.org/people/FoolBoyMedia/sounds/259174/) |
+| `dvg_help.mp3` | Heal spray (PSX Horror SFX Free) | heyheytheree | [872577](https://freesound.org/people/heyheytheree/sounds/872577/) |
+| `dvg_summon.mp3` | Stand Summon Effect.mp3 | Milky0519 | [506626](https://freesound.org/people/Milky0519/sounds/506626/) |
+| `dvg_stomp.mp3` | Nazi Wehrmacht march stomp - Pulse 2 - RR15 | voxlab | [663161](https://freesound.org/people/voxlab/sounds/663161/) |
+| `dvg_gone.mp3` | Tablet faling into water.mp3 | 150112 | [400929](https://freesound.org/people/150112/sounds/400929/) |
+| `dvg_takedown.mp3` | boom_charang_high.mp3 | PearceL | [361606](https://freesound.org/people/PearceL/sounds/361606/) |
+| `dvg_heal.mp3` | 8-Bit Heal | Qvantor | [878312](https://freesound.org/people/Qvantor/sounds/878312/) |
+| `dvg_draw.mp3` | stack_cards.mp3 | eggdeng | [502662](https://freesound.org/people/eggdeng/sounds/502662/) |
+| `dvg_skip.mp3` | Digital glitch_039.wav | AlienXXX | [193711](https://freesound.org/people/AlienXXX/sounds/193711/) |
+| `dvg_immortal.mp3` | Riser sound effect short.wav | syntheffects | [685256](https://freesound.org/people/syntheffects/sounds/685256/) |
+| `dvg_corrupt.mp3` | rowacid3.wav | pidgin | [9901](https://freesound.org/people/pidgin/sounds/9901/) |
+| `dvg_card.mp3` | SFX_Pickup_59.wav | jalastram | [386586](https://freesound.org/people/jalastram/sounds/386586/) |
