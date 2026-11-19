@@ -20,7 +20,7 @@ const EXTNAME = "脑花乔尼";
 // 示例：
 //   "https://raw.githubusercontent.com/用户名/仓库名/refs/heads/main"
 //   "https://gitee.com/用户名/仓库名/raw/master"
-const REPO = "https://raw.githubusercontent.com/xxx10086/xxxz/refs/heads/main";
+const REPO = "https://raw.githubusercontent.com/xxz10086/xxz/refs/heads/main";
 
 // ── 镜像源（顺序与扩展设置里的 update_source 选项一致）──
 // 第一个空串是「直连」，其余是 GitHub 加速代理
