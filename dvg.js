@@ -897,6 +897,12 @@ const skills = {
 			try {
 				FX("mayouyouGone", my);
 				game.log("#g「马友友」", "随着 D&G 一同消失了");
+				// ★ 第一步就清空所有人手里的虚拟牌（不含马友友本体，它自己稍后处理）。
+				//   必须放在致死之前：万一 die() 抛错走到 catch，
+				//   至少别人手上的幽灵牌已经清掉了。
+				try {
+					lib.skill[MAYY_LIMIT].clearAllFakeCards();
+				} catch (e) {}
 				// 先强制致死（它本身有「不会死亡」的技能，所以要先摘掉）
 				// ⚠️ 联机适配：removeSkill 要广播
 				game.broadcastAll((p) => {
@@ -1741,7 +1747,13 @@ const skills = {
 		syncToAll() {
 			const self = lib.skill[MAYY_LIMIT];
 			const my = findMayouyou();
-			if (!my) return;
+			if (!my) {
+				// ★ 马友友已经不在场（死亡/被同归带走）→ 把所有人手里的虚拟牌全部清掉。
+				//   以前这里直接 return，导致马友友死后，之前发出去的虚拟牌
+				//   还赖在别人手牌里 —— 玩家能继续"用"一个已经不存在的召唤物的牌。
+				self.clearAllFakeCards();
+				return;
+			}
 			// ⚠️ 用马友友的【手牌】作为真牌来源。
 			// 之前想用 addToExpansion 放进扩展区，但实测日志显示扩展区始终为 0（该 API 在本环境不可靠）。
 			// 改用真牌=手牌 + 假牌=s 区：s 区的牌带 glows，countCards("h") 数不到（player.js:5170），
@@ -1754,6 +1766,58 @@ const skills = {
 				if (!isDG && !p.hasMark(HELPED)) continue;
 				self.syncToPlayer(p, realCards, realIds);
 			}
+		},
+
+		/**
+		 * 清空全场所有「马友友的牌」虚拟牌。
+		 * 用于马友友死亡/消失时彻底回收，避免留下"幽灵手牌"。
+		 * ⚠️ 扫 game.players + game.dead，因为 D&G 隐匿期间在 game.dead 里，
+		 *    他手上也可能残留虚拟牌。
+		 */
+		clearAllFakeCards() {
+			const self = lib.skill[MAYY_LIMIT];
+			const targets = [];
+			try {
+				for (const p of [...(game.players || []), ...(game.dead || [])]) {
+					if (p && !targets.includes(p)) targets.push(p);
+				}
+			} catch (e) {}
+			let cleared = 0;
+			for (const p of targets) {
+				let fakes = [];
+				try {
+					fakes = p.getCards("s", (c) => c && c.hasGaintag && c.hasGaintag(MAYY_MARK)) || [];
+				} catch (e) {
+					fakes = [];
+				}
+				if (!fakes.length) continue;
+				cleared += fakes.length;
+				try {
+					game.deleteFakeCards(fakes);
+				} catch (e) {
+					// 兜底：官方 API 不可用时逐个删除
+					for (const c of fakes) {
+						try {
+							c.delete();
+						} catch (e2) {}
+					}
+				}
+				// 清掉残留的限次记录，避免下次召唤时沿用旧的"已用"状态
+				try {
+					delete p.storage.dvg_mayyUsed;
+					delete p.storage.dvg_mayyUsedKeys;
+					delete p.storage.dvg_mayyUsedNames;
+					delete p.storage.dvg_borrowPhase;
+					delete p.storage.dvg_borrowNames;
+				} catch (e) {}
+				try {
+					p.update();
+				} catch (e) {}
+			}
+			if (cleared > 0) {
+				game.log("#g「马友友」", "的牌全部消失了（共 " + cleared + " 张）");
+			}
+			return cleared;
 		},
 
 		/** 单个玩家的虚拟牌对齐（抄 shadow_int 的增删逻辑） */
@@ -1829,10 +1893,28 @@ const skills = {
 				"phaseZhunbeiBegin",
 				"gameDrawEnd",
 				"roundStart",
+				// 有人死亡：马友友可能被同归/技能带走，
+				// 触发一次让 content 去清掉残留的虚拟牌
+				"dieAfter",
 			],
 		},
 		filter(event, player) {
-			return !!findMayouyou();
+			// ⚠️ 不能只判断「马友友是否存在」——
+			//   马友友死亡时 findMayouyou() 已经是 null，
+			//   若这里 return false，content 永远不执行，清理逻辑就跑不到，
+			//   导致它死后虚拟牌还赖在别人手里。
+			//   所以：马友友活着 → 正常同步；马友友不在 → 也要放行一次，让 content 去清理。
+			if (findMayouyou()) return true;
+			// 马友友不在了：只有在「场上确实还有残留虚拟牌」时才触发清理，避免无谓执行
+			try {
+				const all = [...(game.players || []), ...(game.dead || [])];
+				for (const p of all) {
+					if (!p || typeof p.getCards !== "function") continue;
+					const fakes = p.getCards("s", (c) => c && c.hasGaintag && c.hasGaintag(MAYY_MARK));
+					if (fakes && fakes.length) return true;
+				}
+			} catch (e) {}
+			return false;
 		},
 		async content(event, trigger, player) {
 			lib.skill[MAYY_LIMIT].syncToAll();
