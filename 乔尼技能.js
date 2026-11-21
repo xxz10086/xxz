@@ -578,6 +578,9 @@ const skills = {
 
 	// 濒死时发动
 	qnj_huangjin_dying: {
+		// 内部触发技（濒死时自动询问），不占技能栏；真正显示的是 qnj_huangjin
+		nopop: true,
+		charlotte: true,
 		trigger: {
 			player: "dying",
 		},

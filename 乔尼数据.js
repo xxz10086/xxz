@@ -46,8 +46,8 @@ export const translates = {
 	qnj_huangjin: "完全なる黄金回旋エネルギー",
 	qnj_huangjin_info:
 		`限定技。出牌阶段或濒死时，若你有 7 枚或以上${get.poptip("qnj_huixuan")}，你可以移去所有${get.poptip("qnj_huixuan")}，选择一名其他角色：对其造成 1 点不可被防止的伤害，并令其获得${get.poptip("qnj_wuxianhuixuan")}与禁疗（不能回复体力，直到其死亡）。<br>结算后你回复 1 点体力，然后失去所有技能且不能获得技能直到游戏结束。`,
-	qnj_huangjin_dying: "完全なる黄金回旋エネルギー",
-	qnj_huangjin_dying_info: "濒死状态时也可发动。",
+	qnj_huangjin_dying: "黄金回旋·濒死",
+	qnj_huangjin_dying_info: `见${get.poptip("qnj_huangjin")}：濒死状态时同样可以发动。`,
 
 	qnj_wuxianhuixuan: "无限回旋",
 	qnj_wuxianhuixuan_info:
@@ -58,9 +58,9 @@ export const translates = {
 	qnj_zhuadan_distance: "爪弹·距离",
 	qnj_zhuadan_distance_info: "爪弹结算后记录与目标的距离修正，持续到你下个回合开始。",
 	qnj_wuxianhuixuan_guard: "无限回旋·守护",
-	qnj_wuxianhuixuan_guard_info: "每轮/每回合检查目标身上是否仍有「无限回旋」，若被清除则自动补回。",
+	qnj_wuxianhuixuan_guard_info: `${get.poptip("qnj_wuxianhuixuan")}不可被移除：被其他技能清除时会自动恢复。`,
 	qnj_no_recover_skill: "无法回复",
-	qnj_no_recover_skill_info: "已合并进「无限回旋」，此技能仅为兼容旧存档保留，不再单独生效。",
+	qnj_no_recover_skill_info: `禁疗效果已并入${get.poptip("qnj_wuxianhuixuan")}，此技能不再单独生效。`,
 	qnj_no_skill: "技能封锁",
 	qnj_no_skill_info: "锁定技，你不能获得或使用普通技能。",
 

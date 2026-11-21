@@ -5,8 +5,8 @@
 //   · genManifest.js 读取它写进 manifest.json
 //   · extension.js / update.js 从这里导入
 //
-// ⚠️ 只允许点分数字，例如 "2.36.3"。不要写 "v2.34.0" 或带后缀，
+// ⚠️ 只允许点分数字，例如 "2.36.4"。不要写 "v2.34.0" 或带后缀，
 //    否则 genManifest.js 会报错、版本比较也会失效。
 // ============================================================================
 
-export const EXTENSION_VERSION = "2.36.3";
+export const EXTENSION_VERSION = "2.36.4";

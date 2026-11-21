@@ -121,11 +121,9 @@ game.import("character", function () {
 			dvg_mayouyou: '<span class="bluetext" style="color:#4B8B3B">腐蚀之力</span>',
 		},
 		characterIntro: {
-			naohua_kenjaku:
-				`羂索　群　3体力<br>〖${get.poptip("naohua_shimie")}〗锁定技，你的第一个准备阶段开始时开展回游。<br>〖${get.poptip("naohua_zhoulingshu")}〗黑色手牌当【无懈可击】；使用后获得${get.poptip("naohua_zhoulingshu_mark")}。<br>〖${get.poptip("naohua_zhang")}〗出牌阶段限一次，令一名其他角色获得${get.poptip("naohua_zhang_mark")}。<br>〖${get.poptip("naohua_duoshe")}〗限定技，一名角色死亡时发动。`,
-			qnj_jonny: "乔尼·乔斯达　群　3体力<br>〖漆黑意志〗〖漫舞者〗〖牙〗",
-			jojo_giorno:
-				"乔鲁诺·乔巴纳　群　4体力<br>〖黄金体验〗〖虫箭〗〖黄金体验镇魂曲〗〖决心〗",
+			naohua_kenjaku: `羂索　群　3体力<br>〖${get.poptip("naohua_shimie")}〗〖${get.poptip("naohua_zhoulingshu")}〗〖${get.poptip("naohua_zhang")}〗〖${get.poptip("naohua_duoshe")}〗`,
+			qnj_jonny: `乔尼·乔斯达　群　3体力<br>〖${get.poptip("qnj_qhei")}〗〖${get.poptip("qnj_manwuzhe_skill")}〗〖${get.poptip("qnj_ya")}〗`,
+			jojo_giorno: `乔鲁诺·乔巴纳　群　4体力<br>〖${get.poptip("jojo_giorno_huangjin")}〗〖${get.poptip("jojo_giorno_chongjian")}〗〖${get.poptip("jojo_giorno_juexin")}〗`,
 			jojo_giorno_requiem:
 				`乔鲁诺·乔巴纳（镇魂曲）　群　4体力<br>觉醒形态，不可选。<br>〖${get.poptip("jojo_giorno_huangjin")}〗〖${get.poptip("jojo_giorno_zhenhunqu")}〗`,
 			dvg_dg:
